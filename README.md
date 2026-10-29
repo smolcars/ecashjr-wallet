@@ -4,6 +4,8 @@ EcashJr Wallet is a BIP86 Taproot wallet for Bitcoin and the eCash (ECX) Bitcoin
 coins on both chains, splits shared coins with `nLockTime` replay protection, and lets each side be
 spent independently.
 
+![EcashJr Wallet interface](./ecashjr-wallet.png)
+
 Both chains use standard Taproot `SIGHASH_DEFAULT` signatures. Every locally signed ECX send and
 split uses `nLockTime = 499999999` and `nSequence = 0xfffffffd` on every input. BTC sends retain
 chain-tip locktime.
