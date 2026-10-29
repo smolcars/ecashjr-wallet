@@ -1,4 +1,4 @@
-import { BETA_API_URL, BETA_FORK_CHECKPOINT } from "./network.ts";
+import { MAINNET_API_URL, MAINNET_FORK_CHECKPOINT } from "./network.ts";
 import type { ForkCheckpoint } from "./chain_verifier.ts";
 export type ChainId = "ecx" | "btc";
 export type AmountUnit = "sat" | "btc" | "bip177";
@@ -285,8 +285,8 @@ export interface BroadcastResult {
 
 export const DEFAULT_SETTINGS: WalletSettings = {
   btcApiUrl: "https://mempool.space/api",
-  ecxApiUrl: BETA_API_URL,
-  forkCheckpoint: BETA_FORK_CHECKPOINT,
+  ecxApiUrl: MAINNET_API_URL,
+  forkCheckpoint: MAINNET_FORK_CHECKPOINT,
   amountUnit: "btc",
   btcConfirmations: 1,
   ecxConfirmations: 1,

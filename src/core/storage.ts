@@ -1,4 +1,3 @@
-import { BETA_API_URL, BETA_FORK_CHECKPOINT } from "./network.ts";
 import { validForkCheckpoint } from "./chain_verifier.ts";
 import type { SecretRecord } from "./keys.ts";
 import { normalizeEsploraUrl } from "./esplora.ts";
@@ -6,7 +5,6 @@ import { assertWalletStateInvariants } from "./intent_state.ts";
 import {
   type ChainCoinObservation,
   type ChainTxStatus,
-  DEFAULT_SETTINGS,
   emptyPublicState,
   type IntentObservation,
   type PersistedCoin,
@@ -266,23 +264,7 @@ export function parseWalletState(value: unknown): WalletPublicState {
   ) {
     throw new Error("Wallet state is malformed");
   }
-  const settings = {
-    ...stored.settings,
-    btcConfirmations: stored.settings.btcConfirmations === undefined
-      ? DEFAULT_SETTINGS.btcConfirmations
-      : stored.settings.btcConfirmations,
-    ecxConfirmations: stored.settings.ecxConfirmations === undefined
-      ? DEFAULT_SETTINGS.ecxConfirmations
-      : stored.settings.ecxConfirmations,
-  };
-  const adoptBeta = settings.forkCheckpoint === undefined &&
-    settings.ecxApiUrl === "https://explorer.ecash.com/api" &&
-    stored.coins.length === 0 && stored.intents.length === 0 &&
-    Object.keys(stored.sharedProvenance).length === 0 && Object.keys(stored.tips!).length === 0;
-  if (adoptBeta) {
-    settings.ecxApiUrl = BETA_API_URL;
-    settings.forkCheckpoint = { ...BETA_FORK_CHECKPOINT };
-  }
+  const settings = stored.settings;
   if (!validSettings(settings)) {
     throw new Error("Wallet state contains invalid settings");
   }
@@ -354,10 +336,6 @@ export function parseWalletState(value: unknown): WalletPublicState {
       discarded === 1 ? "y" : "ies"
     }`;
     parsed.lastSyncError = parsed.lastSyncError ? `${parsed.lastSyncError}; ${detail}` : detail;
-  }
-  if (adoptBeta) {
-    delete parsed.lastSyncError;
-    delete parsed.lastSyncAt;
   }
   assertWalletStateInvariants(parsed);
   return parsed;

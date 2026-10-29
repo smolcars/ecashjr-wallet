@@ -77,9 +77,13 @@ Deno.test("confirmation settings default to one and reject invalid targets", () 
   for (const key of ["btcConfirmations", "ecxConfirmations"] as const) {
     const state = emptyPublicState();
     delete (state.settings as Partial<typeof state.settings>)[key];
-    if (parseWalletState(state).settings[key] !== 1) {
-      throw new Error("An unset confirmation target did not receive its default");
+    let missingRejected = false;
+    try {
+      parseWalletState(state);
+    } catch {
+      missingRejected = true;
     }
+    if (!missingRejected) throw new Error("A missing confirmation target was accepted");
     for (const target of [0, 1, 6, 1_000]) {
       state.settings[key] = target;
       if (parseWalletState(state).settings[key] !== target) {

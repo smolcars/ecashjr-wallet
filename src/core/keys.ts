@@ -18,8 +18,7 @@ export const SECRET_AAD = utf8("ecashjr-secret-v1");
 export const PRODUCTION_SCRYPT = { N: 2 ** 18, r: 8, p: 1, dkLen: 32 } as const;
 
 // Bound parameters loaded from disk so a damaged or tampered record cannot ask
-// the process for unbounded memory or CPU. These limits still accept the former
-// N=2^19 setting and leave room for stronger settings in future releases.
+// the process for unbounded memory or CPU.
 const MAX_SCRYPT_MEMORY = 1024 ** 3 + 2 * 1024;
 const MAX_SCRYPT_WORK = 2 ** 20 * 8;
 

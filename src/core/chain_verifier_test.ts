@@ -36,7 +36,7 @@ Deno.test("missing checkpoint fails closed before any backend request", async ()
     equal(validForkCheckpoint(invalid), false);
   }
 });
-Deno.test("checkpoint rejects pre-fork and wrong-chain backends and caches by identity", async () => {
+Deno.test("checkpoint rejects pre-fork and wrong-chain backends on every check", async () => {
   const verifier = new ChainVerifier();
   const backend = new Backend("https://example.com/api");
   backend.tip--;
@@ -51,7 +51,7 @@ Deno.test("checkpoint rejects pre-fork and wrong-chain backends and caches by id
   equal((await verifier.verifiedTip("ecx", backend, checkpoint)).height, checkpoint.height);
   const before = backend.requests;
   await verifier.verifiedTip("ecx", backend, checkpoint);
-  equal(backend.requests - before, 1);
+  equal(backend.requests - before, 2);
   await rejects(
     () => verifier.verifiedTip("btc", backend, checkpoint),
     /failed the fork checkpoint/,
@@ -60,4 +60,33 @@ Deno.test("checkpoint rejects pre-fork and wrong-chain backends and caches by id
     () => verifier.verifiedTip("ecx", backend, { ...checkpoint, ecxHash: "33".repeat(32) }),
     /failed the fork checkpoint/,
   );
+});
+
+Deno.test("checkpoint is rechecked after same-URL chain changes and request failures", async () => {
+  const btcHash = "11".repeat(32);
+  const forkHash = "22".repeat(32);
+  let hash = forkHash;
+  let unavailable = false;
+  const backend = new EsploraClient("https://example.com/api", (input) => {
+    const path = new URL(String(input)).pathname;
+    if (path.endsWith("/blocks/tip/height")) return Promise.resolve(new Response("100"));
+    if (unavailable) return Promise.reject(new Error("backend unavailable"));
+    return Promise.resolve(new Response(hash));
+  });
+  const verifier = new ChainVerifier();
+  const verify = () =>
+    verifier.verifiedTip("ecx", backend, {
+      height: 100,
+      btcHash,
+      ecxHash: forkHash,
+    });
+  equal((await verify()).height, 100);
+  hash = btcHash;
+  await rejects(verify, /failed the fork checkpoint/);
+  hash = forkHash;
+  equal((await verify()).height, 100);
+  unavailable = true;
+  await rejects(verify, /backend unavailable/);
+  unavailable = false;
+  equal((await verify()).height, 100);
 });

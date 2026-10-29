@@ -20,8 +20,6 @@ export function validForkCheckpoint(value: unknown): value is ForkCheckpoint {
 
 /** Check the pinned network identity; never learn a checkpoint from the backend being checked. */
 export class ChainVerifier {
-  #verifiedCheckpoints = new Set<string>();
-
   async verifiedTip(
     chain: ChainId,
     client: EsploraClient,
@@ -37,13 +35,10 @@ export class ChainVerifier {
       throw new Error(`${chain.toUpperCase()} backend is behind the required fork checkpoint`);
     }
     const hash = checkpoint[`${chain}Hash`];
-    const checkpointKey = `${chain}:${client.baseUrl}:${checkpoint.height}:${hash}`;
-    if (!this.#verifiedCheckpoints.has(checkpointKey)) {
-      const actual = await client.blockHash(checkpoint.height);
-      if (actual !== hash) {
-        throw new Error(`${chain.toUpperCase()} backend failed the fork checkpoint`);
-      }
-      this.#verifiedCheckpoints.add(checkpointKey);
+    // A backend can switch chains at the same URL between operations.
+    const actual = await client.blockHash(checkpoint.height);
+    if (actual !== hash) {
+      throw new Error(`${chain.toUpperCase()} backend failed the fork checkpoint`);
     }
     return { height, fetchedAt: new Date().toISOString() };
   }
