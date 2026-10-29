@@ -3,7 +3,7 @@ import { RawTx, SigHash, Transaction } from "@scure/btc-signer";
 import { schnorr } from "@noble/curves/secp256k1.js";
 import { fromHex, toHex } from "./bytes.ts";
 import { Bip86Keychain, entropyFromMnemonic } from "./keys.ts";
-import { assertWalletStateInvariants } from "./intent_state.ts";
+import { assertWalletStateInvariants, summarizeIntent } from "./intent_state.ts";
 import { emptyPublicState } from "./types.ts";
 import {
   assertEcxReplayProtection,
@@ -31,8 +31,8 @@ Deno.test("ECX marker survives signing and BIP341 signatures commit to locktime 
     const signed = signEcxSweep(template, keys);
     const raw = RawTx.decode(fromHex(signed.rawTx));
     const tx = Transaction.fromRaw(fromHex(signed.rawTx));
-    equal(template.lockTime, 499_999_999);
-    equal(raw.lockTime, 499_999_999);
+    equal(template.lockTime, 499_999_998);
+    equal(raw.lockTime, 499_999_998);
     deepStrictEqual(raw.inputs.map((i) => i.sequence), [0xffff_fffd, 0xffff_fffd]);
     assertEcxReplayProtection(tx);
     const scripts = coins.map((coin) => fromHex(coin.scriptPubKey));
@@ -75,7 +75,7 @@ Deno.test("ECX marker survives signing and BIP341 signatures commit to locktime 
     equal(raw.lockTime < 500_000_000, true);
     equal(raw.lockTime < 973_800, false);
     equal(raw.inputs.every((i) => i.sequence === 0xffff_ffff), false);
-    for (const lockTime of [0, ECX_REPLAY_LOCKTIME - 1, 500_000_000]) {
+    for (const lockTime of [0, ECX_REPLAY_LOCKTIME - 1, 499_999_999, 500_000_000]) {
       throws(
         () => assertEcxReplayProtection(Transaction.fromRaw(RawTx.encode({ ...raw, lockTime }))),
         /replay protection/,
@@ -131,6 +131,12 @@ Deno.test("ECX marker survives signing and BIP341 signatures commit to locktime 
     state.intents[0].rawTx = toHex(unprotected);
     state.intents[0].txid = Transaction.fromRaw(unprotected).id;
     throws(() => assertWalletStateInvariants(state), /replay protection/);
+    // Current policy must not prevent loading abandoned transaction history.
+    state.intents[0].phase = "abandoned";
+    state.intents[0].abandonedAt = new Date().toISOString();
+    assertWalletStateInvariants(state);
+    equal(state.intents[0].rawTx, toHex(unprotected));
+    equal(summarizeIntent(state.intents[0], state.intents).canRebroadcast, false);
   } finally {
     keys.destroy();
     entropy.fill(0);

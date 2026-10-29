@@ -285,7 +285,8 @@ export function assertTransactionIntent(intent: TransactionIntent): void {
     throw new Error(`Intent ${intent.txid} input metadata does not match its raw transaction`);
   }
   if (intent.kind === "ecx-protected") {
-    assertEcxReplayProtection(transaction);
+    // Abandoned signed history is never broadcast; enforce current policy on active intents.
+    if (intent.phase !== "abandoned") assertEcxReplayProtection(transaction);
     if (intent.chain !== "ecx") {
       throw new Error("Protected spend intent is assigned to the wrong chain");
     }

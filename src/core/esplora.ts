@@ -223,8 +223,11 @@ export class EsploraClient {
           body,
         );
       }
+      const rejection = path === "/tx" && buffered.status === 400
+        ? body.slice(0, 512).replace(/\s+/gu, " ").trim()
+        : "";
       throw new EsploraError(
-        `Esplora request failed (${buffered.status})`,
+        `Esplora request failed (${buffered.status})${rejection ? `: ${rejection}` : ""}`,
         buffered.status,
         body,
       );

@@ -79,7 +79,7 @@ export class SpendWorkflow {
       throw new Error("Choose a valid spend purpose");
     }
     if (request.purpose === "split" && request.chain !== "ecx") {
-      throw new Error("Splitting spends only the ECX side with nLockTime = 499999999");
+      throw new Error("Splitting spends only the ECX side with nLockTime = 499999998");
     }
     if (typeof request.destination !== "string" || request.destination.length > 128) {
       throw new Error("A destination address is required");

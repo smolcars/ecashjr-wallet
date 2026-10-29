@@ -19,7 +19,7 @@ export interface SweepTransaction {
   outputs: { amount: bigint; script: Uint8Array }[];
 }
 
-export const ECX_REPLAY_LOCKTIME = 499_999_999;
+export const ECX_REPLAY_LOCKTIME = 499_999_998;
 
 /** Require the marker and a non-final input, including on restored/rebroadcast transactions. */
 export function assertEcxReplayProtection(tx: Transaction): void {

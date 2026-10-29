@@ -7,7 +7,7 @@ spent independently.
 ![EcashJr Wallet interface](./ecashjr-wallet.png)
 
 Both chains use standard Taproot `SIGHASH_DEFAULT` signatures. Every locally signed ECX send and
-split uses `nLockTime = 499999999` and `nSequence = 0xfffffffd` on every input. BTC sends retain
+split uses `nLockTime = 499999998` and `nSequence = 0xfffffffd` on every input. BTC sends retain
 chain-tip locktime.
 
 ## Features
@@ -25,7 +25,7 @@ chain-tip locktime.
   replay-protection locktime). Every selected UTXO is consumed in full; after fees, everything goes
   to one destination with no change output.
 - P2PKH, P2TR, P2WPKH, and P2WSH destinations.
-- ECX splitting with `nLockTime = 499999999`. Send shared coins to yourself or another destination
+- ECX splitting with `nLockTime = 499999998`. Send shared coins to yourself or another destination
   to move only their ECX copies while leaving the Bitcoin outpoints in place.
 - Bitcoin-first spending with an explicit warning whenever replay protection is not guaranteed.
 - Replay of a Bitcoin funding transaction from the replay panel when its wallet output has not
@@ -49,14 +49,13 @@ transactions, rebuilds the transaction, signs locally, verifies every signature,
 through the selected chain's backend. Both backends must pass their expected fork checkpoint before
 their chain identity is trusted.
 
-The replay-protection rule is pinned to ECX node commit
-[`ca64033c137457a3c8ca394186759819a2ab0694`](https://github.com/ecash-com/bitcoin/blob/ca64033c137457a3c8ca394186759819a2ab0694/src/consensus/tx_verify.cpp).
-Its `IsFinalTx` accepts exactly `LOCKTIME_THRESHOLD - 1`. The corresponding
-[node test](https://github.com/ecash-com/bitcoin/blob/ca64033c137457a3c8ca394186759819a2ab0694/test/functional/feature_replay_protection.py)
-and [operator guide](https://ecash.com/split/) confirm that at least one input must be non-final.
-Bitcoin then treats 499999999 as a future block height and rejects the transaction as non-final.
-500000000 is a timestamp and is not a substitute. This protection does not make ordinary BTC
-transactions unreplayable onto ECX, and is subject to the chains' current consensus rules.
+The replay-protection rule is pinned to ECX mainnet node commit
+[`c8474e0b4f2be9b470c46598a5a6a3e55a85b765`](https://github.com/ecash-com/bitcoin/blob/c8474e0b4f2be9b470c46598a5a6a3e55a85b765/src/consensus/tx_verify.cpp).
+Its `IsFinalTx` exempts `LOCKTIME_THRESHOLD - 2` from the normal locktime check. At least one input
+must be non-final for Bitcoin to enforce the future locktime. Bitcoin then treats 499999998 as a
+future block height and rejects the transaction as non-final. 500000000 is a timestamp and is not a
+substitute. This protection does not make ordinary BTC transactions unreplayable onto ECX, and is
+subject to the chains' current consensus rules.
 
 The marker is checked after signing, while validating persisted ECX spend intents, and immediately
 before broadcast/rebroadcast. Funding replay intentionally broadcasts the original BTC bytes;
@@ -175,7 +174,7 @@ reorganization recovery.
   meaningful funds.
 - An address can be recognized by both chains, but a transaction appearing on Bitcoin does not
   guarantee that it also exists on ECX.
-- Split shared coins by spending the ECX copy first. `nLockTime = 499999999` prevents that
+- Split shared coins by spending the ECX copy first. `nLockTime = 499999998` prevents that
   transaction from being replayed on Bitcoin and leaves the Bitcoin copy untouched.
 - Spending Bitcoin first can expose the same transaction on ECX. When protection is not guaranteed,
   the wallet explains the risk and requires explicit acknowledgement before signing.

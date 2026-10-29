@@ -688,3 +688,24 @@ Deno.test("Esplora timeout includes a stalled successful response body", async (
   }
   if (Date.now() - started > 1_000) throw new Error("Body timeout took too long");
 });
+
+Deno.test("broadcast errors expose a bounded node rejection without retrying", async () => {
+  let calls = 0;
+  const client = new EsploraClient("https://example.invalid/api", () => {
+    calls++;
+    return Promise.resolve(new Response("non-final\n" + "x".repeat(1000), { status: 400 }));
+  });
+  let error: unknown;
+  try {
+    await client.broadcast("00");
+  } catch (caught) {
+    error = caught;
+  }
+  if (
+    !(error instanceof EsploraError) || error.status !== 400 ||
+    !error.message.includes("non-final") || error.message.includes("\n") ||
+    error.message.length > 550 || calls !== 1
+  ) {
+    throw new Error("Broadcast rejection was hidden, unbounded, or retried");
+  }
+});

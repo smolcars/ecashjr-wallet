@@ -30,13 +30,13 @@ function ReplayProtectionHelp() {
       <button
         type="button"
         className="info-tooltip-trigger"
-        aria-label="Explain nLockTime = 499999999"
+        aria-label="Explain nLockTime = 499999998"
         aria-describedby="replay-protection-tooltip"
       >
         ?
       </button>
       <span id="replay-protection-tooltip" className="info-tooltip-content" role="tooltip">
-        ECX sends use locktime 499999999 and non-final input sequences. Bitcoin rejects these
+        ECX sends use locktime 499999998 and non-final input sequences. Bitcoin rejects these
         transactions as non-final; ECX explicitly accepts this marker.
       </span>
     </span>
@@ -62,7 +62,7 @@ export function BalanceSummary({ snapshot }: { snapshot: WalletSnapshot }) {
         detail={
           <>
             <Amount value={snapshot.balances.spendableEcx} chain="ecx" /> selectable with{" "}
-            nLockTime = 499999999
+            nLockTime = 499999998
             <ReplayProtectionHelp />
           </>
         }

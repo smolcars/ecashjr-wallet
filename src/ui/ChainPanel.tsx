@@ -109,7 +109,7 @@ export function ChainPanel(props: ChainPanelProps) {
           <p>
             {isBtc
               ? "Send BTC-only, split, or shared coins. A replayable selection requires an extra confirmation before signing."
-              : "Split shared coins here first: select them and send to yourself or directly to another destination. nLockTime = 499999999 prevents the ECX spend from replaying on Bitcoin, leaving the BTC copies in place."}
+              : "Split shared coins here first: select them and send to yourself or directly to another destination. nLockTime = 499999998 prevents the ECX spend from replaying on Bitcoin, leaving the BTC copies in place."}
           </p>
         </div>
       </div>

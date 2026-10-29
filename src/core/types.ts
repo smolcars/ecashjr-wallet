@@ -126,7 +126,7 @@ interface TransactionIntentBase {
 
 export type TransactionIntent =
   | TransactionIntentBase & {
-    /** Every locally signed nLockTime = 499999999 spend, including pure ECX-only sends. */
+    /** Every locally signed nLockTime = 499999998 spend, including pure ECX-only sends. */
     kind: "ecx-protected";
     chain: "ecx";
     inputOutpoints: string[];

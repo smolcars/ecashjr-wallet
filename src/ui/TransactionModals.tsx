@@ -38,7 +38,7 @@ export function SpendPreviewModal(
         <h2>{title}</h2>
         <p className="muted">
           {isSplit
-            ? "This transaction uses nLockTime = 499999999 with non-final inputs. The shared inputs move only on ECX; their BTC outpoints remain untouched."
+            ? "This transaction uses nLockTime = 499999998 with non-final inputs. The shared inputs move only on ECX; their BTC outpoints remain untouched."
             : isBtc
             ? replayRisk
               ? "No selected coin guarantees that this Bitcoin transaction is protected from replay on ECX."

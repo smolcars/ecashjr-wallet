@@ -117,7 +117,7 @@ function Setup({ onReady }: SetupProps) {
         <p>
           Use this Taproot wallet to manage coins across Bitcoin and the ECX hardfork, replay
           eligible Bitcoin funding transactions on the fork, and split shared coins using{" "}
-          <code>nLockTime = 499999999</code> replay protection so each side can be spent separately.
+          <code>nLockTime = 499999998</code> replay protection so each side can be spent separately.
         </p>
       </section>
 

@@ -12,7 +12,7 @@ export function validForkCheckpoint(value: unknown): value is ForkCheckpoint {
   if (!value || typeof value !== "object") return false;
   const checkpoint = value as ForkCheckpoint;
   return Number.isSafeInteger(checkpoint.height) && checkpoint.height > 0 &&
-    checkpoint.height < 499_999_999 &&
+    checkpoint.height < 499_999_998 &&
     typeof checkpoint.btcHash === "string" && /^[0-9a-f]{64}$/.test(checkpoint.btcHash) &&
     typeof checkpoint.ecxHash === "string" && /^[0-9a-f]{64}$/.test(checkpoint.ecxHash) &&
     checkpoint.btcHash !== checkpoint.ecxHash;
